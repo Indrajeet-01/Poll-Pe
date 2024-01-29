@@ -1,0 +1,5 @@
+Mysql databse is used and it has 5 tables.
+All apis are build using REST framework and there routes are create in separate files.
+SQL statements are used to handle the apis with the database.
+
+To start server :- npm start
