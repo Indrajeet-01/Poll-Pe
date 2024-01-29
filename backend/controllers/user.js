@@ -18,7 +18,7 @@ export const fetchUserPollsAndServeQuestions = (req, res) => {
         WHERE votes.userID = ?;
     `;
 
-    // Execute the query to get user's voting history
+    // execute the query to get user's voting history
     db.query(getUserVotingHistoryQuery, [userId], (err, votingHistoryResults) => {
         if (err) {
             console.error('Error fetching user voting history:', err);
@@ -43,19 +43,19 @@ ORDER BY polls.id, question_sets.id;
         
         `;
 
-        // Execute the query to fetch polls and serve questions
+        // query to fetch polls and serve questions
         db.query(fetchUserPollsAndServeQuestionsQuery, [startDate, endDate, userId], (err, results) => {
             if (err) {
                 console.error('Error fetching user polls and serving questions:', err);
                 return res.status(500).json({ error: 'Internal server error' });
             }
 
-            // Check if there are no new polls or unanswered questions
+            // check if there are no new polls or unanswered questions
             if (results.length === 0) {
                 return res.status(404).json({ message: 'No new polls exist' });
             }
 
-            // Map the result to the desired response format
+            // map the result to the desired response format
             const userPolls = [];
             let currentPollID = null;
 
@@ -86,12 +86,12 @@ ORDER BY polls.id, question_sets.id;
 };
 
 
-// Submit a Poll
+// submit  poll
 export const submitPoll = (req, res) => {
     const { userId } = req.params;
     const { pollId, questionSetId, selectedOption } = req.body;
 
-    // Validate required parameters
+    
     if (!userId || !pollId || !questionSetId || selectedOption === undefined) {
         return res.status(400).json({ error: 'Invalid input data' });
     }
@@ -108,7 +108,7 @@ export const submitPoll = (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Check if the specified question set exists for the given poll
+        // check if the specified question set exists for the given poll
         const checkQuestionSetQuery = 'SELECT * FROM question_sets WHERE id = ? AND pollID = ?';
         db.query(checkQuestionSetQuery, [questionSetId, pollId], (err, questionSetResults) => {
             if (err) {
@@ -126,12 +126,12 @@ export const submitPoll = (req, res) => {
                 return res.status(400).json({ error: 'Invalid selected option for the question' });
             }
 
-            // Calculate reward amount within the specified range
-            const minReward = 10; // Replace with your actual minimum reward
-            const maxReward = 50; // Replace with your actual maximum reward
+            // calculate reward amount within the specified range
+            const minReward = 10; 
+            const maxReward = 50; 
             const rewardAmount = Math.floor(Math.random() * (maxReward - minReward + 1)) + minReward;
 
-            // Update user's data to indicate completion of the question
+            // update user's data to indicate completion of the question
             const updateUserQuery = 'UPDATE users SET completedQuestionId = ?, completedPollId = ? WHERE id = ?';
             db.query(updateUserQuery, [questionSetId, pollId, userId], (err) => {
                 if (err) {

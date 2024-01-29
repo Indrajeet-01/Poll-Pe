@@ -1,5 +1,6 @@
 import db from "../database.js";
 
+// create poll
 export const createPoll = (req, res) => {
     const {
         title,
@@ -46,16 +47,16 @@ export const createPoll = (req, res) => {
     );
 };
 
-// fetch polls
+// fetch all polls
 export const getAllPolls = (req, res) => {
-    // Pagination parameters
+    // pagination parameters
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
 
-    // Calculate offset for pagination
+    
     const offset = (page - 1) * pageSize;
 
-    // Query to fetch all polls with additional information
+    // query to fetch all polls with additional information
     const getAllPollsQuery = `
         SELECT
             polls.id AS pollID,
@@ -88,7 +89,7 @@ export const getAllPolls = (req, res) => {
             return res.status(404).json({ error: 'No polls found' });
         }
 
-        // Map the result to the desired response format
+        
         const polls = results.map((result) => ({
             pollID: result.pollID,
             pollTitle: result.pollTitle,
@@ -111,22 +112,22 @@ export const getAllPolls = (req, res) => {
 
 // update poll and associated questionset
 export const updatePoll = (req, res) => {
-    const { pollId } = req.params; // Get pollId from request parameters
+    const { pollId } = req.params; 
     const { title, category, minReward, maxReward, startDate, endDate, questionSets } = req.body;
 
-    // Check if pollId is provided
+    
     if (!pollId) {
         return res.status(400).json({ error: 'Poll ID is required' });
     }
 
-    // Build the update query for poll details
+    // update query for poll details
     const updatePollDetailsQuery = `
         UPDATE polls
         SET title = ?, category = ?, minReward = ?, maxReward = ?, startDate = ?, endDate = ?
         WHERE id = ?;
     `;
 
-    // Execute the update query for poll details
+    
     db.query(
         updatePollDetailsQuery,
         [title, category, minReward, maxReward, startDate, endDate, pollId],
@@ -136,12 +137,12 @@ export const updatePoll = (req, res) => {
                 return res.status(500).json({ error: 'Internal server error' });
             }
 
-            // Check if the poll was found and updated
+            
             if (results.affectedRows === 0) {
                 return res.status(404).json({ error: 'Poll not found' });
             }
 
-            // Update question sets if provided
+            // update question sets if provided
             if (questionSets && questionSets.length > 0) {
                 // Iterate through each question set and update
                 questionSets.forEach(({ questionSetId, questionText, options, questionType }) => {
@@ -151,7 +152,7 @@ export const updatePoll = (req, res) => {
                         WHERE id = ? AND pollID = ?;
                     `;
 
-                    // Execute the update query for each question set
+                    // update query for each question set
                     db.query(
                         updateQuestionSetQuery,
                         [questionText, JSON.stringify(options), questionType, questionSetId, pollId],
@@ -170,35 +171,34 @@ export const updatePoll = (req, res) => {
     );
 };
 
-// Fetch Poll Analytics for a Particular Poll
+// fetch poll Analytics for a particular poll
 export const fetchPollAnalytics = (req, res) => {
     const { pollId } = req.params;
 
-    // Validate pollId
+    
     if (!pollId) {
         return res.status(400).json({ error: 'Poll ID is required' });
     }
 
-    // Query to fetch poll analytics for a particular poll
     const fetchPollAnalyticsQuery = `
         SELECT totalVotes, optionCounts
         FROM poll_analytics
         WHERE pollId = ?;
     `;
 
-    // Execute the query to fetch poll analytics
+    //  query to fetch poll analytics
     db.query(fetchPollAnalyticsQuery, [pollId], (err, results) => {
         if (err) {
             console.error('Error fetching poll analytics:', err);
             return res.status(500).json({ error: 'Internal server error' });
         }
 
-        // Check if the poll analytics data is available
+        // check if the poll analytics data is available
         if (results.length === 0) {
             return res.status(404).json({ error: 'Poll analytics not found for the specified poll' });
         }
 
-        // Extract the data from the result
+        // extract the data from the result
         const { totalVotes, optionCounts } = results[0];
 
         // Provide the response with the requested poll analytics
@@ -206,7 +206,7 @@ export const fetchPollAnalytics = (req, res) => {
     });
 };
 
-// Fetch Overall Poll Analytics
+// fetch Overall Poll Analytics
 export const fetchOverallPollAnalytics = (req, res) => {
     // Query to fetch overall poll analytics
     const fetchOverallPollAnalyticsQuery = `
