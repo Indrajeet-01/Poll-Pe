@@ -210,7 +210,7 @@ export const fetchPollAnalytics = (req, res) => {
 export const fetchOverallPollAnalytics = (req, res) => {
     // Query to fetch overall poll analytics
     const fetchOverallPollAnalyticsQuery = `
-        SELECT SUM(totalVotes) AS overallTotalVotes, JSON_OBJECTAGG(pollId, optionCounts) AS overallOptionCounts
+        SELECT COALESCE(SUM(totalVotes), 0) AS overallTotalVotes, JSON_OBJECTAGG(CAST(pollId AS CHAR), optionCounts) AS overallOptionCounts
         FROM poll_analytics;
     `;
 
